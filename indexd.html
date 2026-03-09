@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PayBridge Secure Checkout: By McOwino</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.payment-card{
+background:white;
+padding:35px;
+width:380px;
+border-radius:15px;
+box-shadow:0 20px 40px rgba(0,0,0,0.3);
+}
+
+h2{
+text-align:center;
+margin-bottom:5px;
+}
+
+.tagline{
+text-align:center;
+font-size:13px;
+color:#777;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:8px;
+border:1px solid #ddd;
+font-size:14px;
+}
+
+button{
+width:100%;
+padding:13px;
+border:none;
+border-radius:8px;
+background:#2c5364;
+color:white;
+font-size:16px;
+cursor:pointer;
+margin-top:10px;
+}
+
+button:hover{
+background:#203a43;
+}
+
+.pay-icons{
+text-align:center;
+margin-top:15px;
+}
+
+.pay-icons i{
+font-size:26px;
+margin:5px;
+color:#555;
+}
+
+.status{
+text-align:center;
+margin-top:15px;
+font-weight:bold;
+}
+
+.spinner{
+display:none;
+text-align:center;
+margin-top:10px;
+}
+
+.spinner i{
+font-size:28px;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotate(0)}
+100%{transform:rotate(360deg)}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="payment-card">
+
+<h2>PayBridge</h2>
+<div class="tagline">Bridging Customers and Payments Securely</div>
+
+<input id="name" placeholder="Full Name">
+<input id="email" placeholder="Email Address">
+<input id="phone" placeholder="Phone (07XXXXXXXX)">
+<input id="amount" placeholder="Amount (KES)">
+
+<button id="payBtn" onclick="startPayment()">Pay Now</button>
+
+<div class="pay-icons">
+<i class="fab fa-cc-visa"></i>
+<i class="fab fa-cc-mastercard"></i>
+<i class="fas fa-mobile-alt"></i>
+</div>
+
+<div class="spinner" id="spinner">
+<i class="fas fa-spinner"></i>
+</div>
+
+<div class="status" id="status"></div>
+
+</div>
+
+<script src="https://unpkg.com/intasend-inlinejs-sdk@3.0.4/build/intasend-inline.js"></script>
+
+<script>
+
+/* ==============================
+   CONFIGURATION
+============================== */
+
+const INTASEND_PUBLIC_KEY = "ISPubKey_live_79fff6a0-2a9e-4e38-b442-d00c56a58789";  // Replace with your live public key
+const GSCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRNlSMBuf0puXMdiPSFix_HD1s4wwpJqEF3cvAfoHJEbrPsP-hRyC1JNgR4zSMKv8xyA/exec";     // Replace with your Apps Script URL
+
+let processing = false;
+
+/* ==============================
+   INIT INTASEND
+============================== */
+
+const intasend = new window.IntaSend({
+publicAPIKey: INTASEND_PUBLIC_KEY,
+live: true
+});
+
+/* ==============================
+   START PAYMENT
+============================== */
+
+function startPayment(){
+
+if(processing) return;
+
+let name = document.getElementById("name").value.trim();
+let email = document.getElementById("email").value.trim();
+let phone = document.getElementById("phone").value.trim();
+let amount = document.getElementById("amount").value.trim();
+
+/* ==============================
+   SIMPLE VALIDATION
+============================== */
+
+if(!name || !email || !phone || !amount){
+document.getElementById("status").innerHTML="Please fill all fields.";
+return;
+}
+
+/* ==============================
+   FORMAT PHONE NUMBER (KENYA)
+============================== */
+
+if(phone.startsWith("0")){
+phone = "254" + phone.substring(1);
+}
+if(phone.startsWith("+")){
+phone = phone.substring(1);
+}
+
+/* ==============================
+   START PAYMENT
+============================== */
+
+processing = true;
+document.getElementById("spinner").style.display="block";
+document.getElementById("status").innerHTML="Processing payment...";
+
+let reference = "PB" + Date.now();
+
+intasend.run({
+
+amount: amount,
+currency: "KES",
+email: email,
+phone_number: phone,
+first_name: name,
+api_ref: reference
+
+},
+
+/* PAYMENT SUCCESS */
+function(response){
+document.getElementById("spinner").style.display="none";
+document.getElementById("status").innerHTML="Payment Successful";
+saveTransaction(response,name,email,phone,amount,reference);
+processing=false;
+},
+
+/* PAYMENT FAILED */
+function(response){
+document.getElementById("spinner").style.display="none";
+document.getElementById("status").innerHTML="Payment Failed or Cancelled";
+processing=false;
+});
+
+}
+
+/* ==============================
+   SAVE TRANSACTION TO GOOGLE SHEETS
+============================== */
+
+function saveTransaction(res,name,email,phone,amount,reference){
+
+fetch(GSCRIPT_URL,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+transaction_id: res.invoice_id || "",
+api_ref: reference,
+name: name,
+email: email,
+phone: phone,
+amount: amount,
+currency: "KES",
+method: res.method || "Unknown",
+status: "Completed",
+date: new Date().toISOString()
+})
+})
+.then(res => res.json())
+.then(data => console.log("Transaction saved"))
+.catch(err => console.log("Failed to save transaction", err));
+
+}
+
+</script>
+
+</body>
+</html>
