@@ -312,6 +312,38 @@ this.value = this.value.replace(/[^0-9]/g,"");
 </script>
 
 <script>
+   /* =========================
+   EMAIL FIELD XSS PROTECTION
+   ========================= */
+
+(function(){
+
+const emailField = document.getElementById("email");
+
+if(!emailField) return;
+
+emailField.addEventListener("input", function(){
+
+let value = this.value;
+
+/* Remove XSS characters */
+value = value.replace(/[<>"'`;()&]/g,"");
+
+/* Allow only email-safe characters */
+value = value.replace(/[^a-zA-Z0-9@._-]/g,"");
+
+/* Limit length */
+value = value.substring(0,60);
+
+this.value = value;
+
+});
+
+})();
+</script>
+
+
+<script>
 /* =================================
    1. Disable Right Click
 ================================= */
