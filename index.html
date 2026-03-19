@@ -8,6 +8,9 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
 
 body{
@@ -133,6 +136,51 @@ animation:spin 1s linear infinite;
   opacity:0.8;
 }
 
+
+.footer-line {
+  text-align: center;
+  font-size: 15px;
+  padding: 12px;
+  margin-top: 20px;
+  color: #e5e7eb;
+  background: linear-gradient(90deg, #0f172a, #1e293b);
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  letter-spacing: 0.4px;
+}
+
+/* Base link style */
+.footer-line a {
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Developer */
+.footer-line .dev {
+  color: #38bdf8;
+}
+
+.footer-line .dev:hover {
+  color: #0ea5e9;
+  text-shadow: 0 0 6px rgba(56,189,248,0.7);
+}
+
+/* IntaSend */
+.footer-line .intasend {
+  color: #22c55e;
+}
+
+.footer-line .intasend:hover {
+  color: #16a34a;
+  text-shadow: 0 0 6px rgba(34,197,94,0.7);
+}
+
+/* Divider */
+.footer-line .divider {
+  margin: 0 8px;
+  color: #64748b;
+}
 </style>
 </head>
 
@@ -170,7 +218,22 @@ animation:spin 1s linear infinite;
 
 <div class="status" id="status"></div>
 
-Developed by <a href="">McOwino</a>|| Powered by <a href="https://payment.intasend.com/invite/1613e4/">Intasend Solutions</a>
+
+
+<div class="footer-line">
+  Developed by 
+  <a href="#" class="dev">McOwino</a>
+  <span class="divider">||</span>
+  Powered by 
+  <a href="https://payment.intasend.com/invite/1613e4/" target="_blank" class="intasend">
+    IntaSend Solutions
+  </a>
+</div>
+
+
+
+
+
 </div>
 
 <script src="https://unpkg.com/intasend-inlinejs-sdk@3.0.4/build/intasend-inline.js"></script>
