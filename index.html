@@ -248,6 +248,16 @@ animation:spin 1s linear infinite;
 
 <body>
 
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js")
+    .then(() => console.log("Service Worker Registered"));
+}
+</script>
+
+
+
 <div class="payment-card">
 
 <h2>PayBridge</h2>
